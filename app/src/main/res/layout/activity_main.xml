@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <!-- EditText for message input -->
+    <EditText
+        android:id="@+id/message_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Enter message to hide / extract"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!-- ImageView for displaying selected image -->
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_below="@id/message_edit_text"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
+    <!-- Button for selecting an image -->
+    <Button
+        android:id="@+id/select_image_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Image"
+        android:layout_below="@id/image_view"
+        android:layout_marginTop="16dp" />
+
+    <!-- Button for hiding message in image -->
+    <Button
+        android:id="@+id/hide_message_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hide Message"
+        android:layout_below="@id/select_image_button"
+        android:layout_marginTop="16dp" />
+
+    <!-- Button for extracting message from image -->
+    <Button
+        android:id="@+id/extract_message_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Extract Message"
+        android:layout_below="@id/hide_message_button"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>
