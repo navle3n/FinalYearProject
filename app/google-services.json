@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760189534563",
+    "project_id": "fypauth-ed155",
+    "storage_bucket": "fypauth-ed155.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760189534563:android:dea18a9f2bf731be345356",
+        "android_client_info": {
+          "package_name": "com.example.fyp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaJcjKjeUuA_daxBp-sGTSEfqEDDHrDJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

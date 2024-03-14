@@ -2,71 +2,60 @@ package com.example.fyp;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class LSBEncoder {
-    private static final int BITS_PER_CHAR = 8;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static void encodeMessage(Bitmap bitmap, String message, File outputFile) throws IOException {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
+    // Function to encode a message into an image
+    public static Bitmap encodeMessage(Bitmap coverImage, String message) {
+        int width = coverImage.getWidth();
+        int height = coverImage.getHeight();
+        Bitmap stegoImage = Bitmap.createBitmap(width, height, coverImage.getConfig());
+
         int messageLength = message.length();
-        int charIndex = 0;
-
-        FileOutputStream fos = new FileOutputStream(outputFile);
+        int messageIndex = 0;
 
         // Encode message length into the first 32 bits of the image
-        encodeLength(bitmap, messageLength);
-
-        // Encode each character of the message into the image
+        int remainingMessageLength = messageLength;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = bitmap.getPixel(x, y);
-
-                // Get the RGB components
+                int pixel = coverImage.getPixel(x, y);
+                int alpha = Color.alpha(pixel);
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
                 int blue = Color.blue(pixel);
 
-                // Encode message into the least significant bits of RGB components
-                if (charIndex < messageLength) {
-                    char character = message.charAt(charIndex++);
-                    red = encodeChar(red, character, BITS_PER_CHAR);
-                    green = encodeChar(green, character, BITS_PER_CHAR);
-                    blue = encodeChar(blue, character, BITS_PER_CHAR);
+                // Encode the message length into the first 32 bits of the image
+                if (messageIndex < 32) {
+                    int bit = (messageLength >> (31 - messageIndex)) & 1;
+                    red = modifyLSB(red, bit);
+                    messageIndex++;
                 }
 
-                // Update the pixel color with the modified RGB components
-                int encodedPixel = Color.rgb(red, green, blue);
-                bitmap.setPixel(x, y, encodedPixel);
+                // Encode the message into the remaining bits of the image
+                else if (messageIndex - 32 < messageLength) {
+                    char c = message.charAt(messageIndex - 32);
+                    String binaryChar = String.format("%8s", Integer.toBinaryString(c)).replace(' ', '0');
+
+                    // Modify the least significant bits of the color channels
+                    red = modifyLSB(red, binaryChar.charAt(0));
+                    green = modifyLSB(green, binaryChar.charAt(1));
+                    blue = modifyLSB(blue, binaryChar.charAt(2));
+
+                    messageIndex++;
+                }
+
+                // Create a new pixel with modified color values
+                int newPixel = Color.argb(alpha, red, green, blue);
+                stegoImage.setPixel(x, y, newPixel);
             }
         }
 
-        // Write the encoded image to the output file
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        fos.close();
+        return stegoImage;
     }
 
-    private static void encodeLength(Bitmap bitmap, int messageLength) {
-        for (int i = 0; i < 32; i++) {
-            int x = i % bitmap.getWidth();
-            int y = i / bitmap.getWidth();
-            int pixel = bitmap.getPixel(x, y);
-            int red = Color.red(pixel);
-            int bit = (messageLength >> i) & 1;
-            red = (red & 0xFE) | bit;
-            bitmap.setPixel(x, y, Color.rgb(red, Color.green(pixel), Color.blue(pixel)));
-        }
-    }
-
-    private static int encodeChar(int colorComponent, char character, int bitsPerChar) {
-        return (colorComponent & 0xFE) | ((character >> (bitsPerChar - 1)) & 1);
+    // Function to modify the least significant bit of a color channel
+    private static int modifyLSB(int color, int bit) {
+        // Clear the least significant bit and set it to the desired value
+        return (color & 0xFE) | bit;
     }
 }

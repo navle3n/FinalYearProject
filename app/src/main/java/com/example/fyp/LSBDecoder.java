@@ -2,68 +2,90 @@ package com.example.fyp;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
-import java.io.File;
 
 public class LSBDecoder {
-    private static final int BITS_PER_CHAR = 8;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static String decodeMessage(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        // Decode message length from the first 32 bits of the image
-        int messageLength = decodeLength(bitmap);
+    public static String decodeMessage(Bitmap stegoImage) {
+        int width = stegoImage.getWidth();
+        int height = stegoImage.getHeight();
 
         StringBuilder messageBuilder = new StringBuilder();
-        int charIndex = 0;
 
-        // Decode each character of the message from the image
+        // Variable to track the message length
+        int messageLength = 0;
+
+        // Variable to track the current bit index in the message
+        int bitIndex = 0;
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = bitmap.getPixel(x, y);
-
-                // Get the RGB components
+                int pixel = stegoImage.getPixel(x, y);
                 int red = Color.red(pixel);
                 int green = Color.green(pixel);
                 int blue = Color.blue(pixel);
 
-                // Decode message from the least significant bits of RGB components
-                if (charIndex < messageLength) {
-                    char character = (char) (
-                            (decodeChar(red, BITS_PER_CHAR) << (BITS_PER_CHAR - 1)) |
-                                    (decodeChar(green, BITS_PER_CHAR) << (BITS_PER_CHAR - 1)) |
-                                    (decodeChar(blue, BITS_PER_CHAR))
-                    );
-                    messageBuilder.append(character);
-                    charIndex++;
+                // Extract the least significant bits from each color channel
+                char redLSB = (char) (red & 1);
+                char greenLSB = (char) (green & 1);
+                char blueLSB = (char) (blue & 1);
+
+                // Increment the message length bits
+                messageLength |= (redLSB << bitIndex++);
+                messageLength |= (greenLSB << bitIndex++);
+                messageLength |= (blueLSB << bitIndex++);
+
+                // Check if we have enough bits to determine the message length
+                if (bitIndex >= 32) {
+                    // We have extracted the message length, exit the loop
+                    break;
                 }
+            }
+            if (bitIndex >= 32) {
+                // We have extracted the message length, exit the outer loop
+                break;
             }
         }
 
-        return messageBuilder.toString();
-    }
+        // Reset bit index for decoding the actual message
+        bitIndex = 0;
 
-    // Decode message length from the first 32 bits of the image
-    private static int decodeLength(Bitmap bitmap) {
-        int messageLength = 0;
-        for (int i = 0; i < 32; i++) {
-            int x = i % bitmap.getWidth();
-            int y = i / bitmap.getWidth();
-            int pixel = bitmap.getPixel(x, y);
-            int red = Color.red(pixel);
-            int bit = red & 1;
-            messageLength |= (bit << i);
+        // Extract the message using the determined message length
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (bitIndex >= messageLength * 8) {
+                    // We have extracted the entire message, exit the loop
+                    break;
+                }
+
+                int pixel = stegoImage.getPixel(x, y);
+                int red = Color.red(pixel);
+                int green = Color.green(pixel);
+                int blue = Color.blue(pixel);
+
+                // Extract the least significant bits from each color channel
+                char redLSB = (char) (red & 1);
+                char greenLSB = (char) (green & 1);
+                char blueLSB = (char) (blue & 1);
+
+                // Append the LSBs to the message builder
+                messageBuilder.append(redLSB);
+                messageBuilder.append(greenLSB);
+                messageBuilder.append(blueLSB);
+
+                // Increment the bit index
+                bitIndex += 3;
+            }
         }
-        return messageLength;
-    }
 
-    // Decode a character from the least significant bits of a color component
-    private static int decodeChar(int colorComponent, int bitsPerChar) {
-        return colorComponent & 1;
+        // Convert the binary message to a string
+        String message = messageBuilder.toString();
+
+        // Remove the padding null characters and the message terminator
+        int nullIndex = message.indexOf('\0');
+        if (nullIndex != -1) {
+            message = message.substring(0, nullIndex);
+        }
+
+        return message;
     }
 }

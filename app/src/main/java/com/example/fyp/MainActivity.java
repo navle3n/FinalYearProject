@@ -1,6 +1,5 @@
 package com.example.fyp;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_SELECT_IMAGE = 1;
     private static final String IMAGE_FILE_NAME = "selected_image.jpg";
+    private static final String TAG = "MainActivity";
 
     private EditText messageEditText;
     private ImageView imageView;
@@ -41,12 +42,18 @@ public class MainActivity extends AppCompatActivity {
         messageEditText = findViewById(R.id.message_edit_text);
         imageView = findViewById(R.id.image_view);
 
-        findViewById(R.id.select_image_button).setOnClickListener(v -> selectImage());
-        findViewById(R.id.hide_message_button).setOnClickListener(v -> hideMessage());
-        findViewById(R.id.extract_message_button).setOnClickListener(v -> extractMessage());
+        Button selectImageButton = findViewById(R.id.select_image_button);
+        selectImageButton.setOnClickListener(v -> selectImage());
+
+        Button hideMessageButton = findViewById(R.id.hide_message_button);
+        hideMessageButton.setOnClickListener(v -> hideMessage());
+
+        Button extractMessageButton = findViewById(R.id.extract_message_button);
+        extractMessageButton.setOnClickListener(v -> extractMessage());
     }
 
     private void selectImage() {
+        // Logic for selecting an image
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_SELECT_IMAGE);
@@ -63,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageBitmap(selectedImageBitmap);
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(TAG, "Error loading image", e);
                 Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
             }
         }
@@ -78,12 +86,14 @@ public class MainActivity extends AppCompatActivity {
             return file.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e(TAG, "Error saving image", e);
             Toast.makeText(this, "Error saving image", Toast.LENGTH_SHORT).show();
             return null;
         }
     }
 
     private void hideMessage() {
+        // Logic for hiding message
         String message = messageEditText.getText().toString();
         if (selectedImageFilePath != null && !message.isEmpty()) {
             new HideMessageTask().execute(message, selectedImageFilePath);
@@ -93,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void extractMessage() {
+        // Logic for extracting message
         if (selectedImageFilePath != null) {
             new ExtractMessageTask().execute(selectedImageFilePath);
         } else {
@@ -117,25 +128,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class HideMessageTask extends AsyncTask<String, Void, Bitmap> {
+
         @Override
         protected Bitmap doInBackground(String... strings) {
             String message = strings[0];
             String imagePath = strings[1];
             Bitmap selectedImageBitmap = BitmapFactory.decodeFile(imagePath);
-            try {
-                return BPCSEncoder.encodeMessage(selectedImageBitmap, message);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+            return LSBEncoder.encodeMessage(selectedImageBitmap, message);
         }
 
         @Override
         protected void onPostExecute(Bitmap encodedImage) {
             if (encodedImage != null) {
                 imageView.setImageBitmap(encodedImage);
+                Log.d(TAG, "Message hidden successfully");
                 Toast.makeText(MainActivity.this, "Message hidden successfully", Toast.LENGTH_SHORT).show();
             } else {
+                Log.e(TAG, "Failed to hide message");
                 Toast.makeText(MainActivity.this, "Failed to hide message", Toast.LENGTH_SHORT).show();
             }
         }
@@ -145,12 +154,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             String imagePath = strings[0];
-            Bitmap selectedImageBitmap = BitmapFactory.decodeFile(imagePath);
             try {
-                return BPCSDecoder.decodeMessage(selectedImageBitmap);
+                Bitmap selectedImageBitmap = BitmapFactory.decodeFile(imagePath);
+                return LSBDecoder.decodeMessage(selectedImageBitmap);
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                return null; // Return null when an error occurs
             }
         }
 
@@ -158,8 +167,10 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String extractedMessage) {
             if (extractedMessage != null) {
                 showMessagePopup(extractedMessage);
+                Log.d(TAG, "Message extracted successfully: " + extractedMessage);
                 Toast.makeText(MainActivity.this, "Message extracted successfully", Toast.LENGTH_SHORT).show();
             } else {
+                Log.e(TAG, "Failed to extract message");
                 Toast.makeText(MainActivity.this, "Failed to extract message", Toast.LENGTH_SHORT).show();
             }
         }

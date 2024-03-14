@@ -6,6 +6,8 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
+    <!-- Existing Views -->
+
     <!-- EditText for message input -->
     <EditText
         android:id="@+id/message_edit_text"
@@ -53,4 +55,12 @@
         android:layout_below="@id/hide_message_button"
         android:layout_marginTop="16dp" />
 
+    <!-- Button for signing out -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sign_out_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign Out"
+        android:layout_below="@id/extract_message_button"
+        android:layout_marginTop="16dp" />
 </RelativeLayout>
