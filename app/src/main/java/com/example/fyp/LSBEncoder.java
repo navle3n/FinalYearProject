@@ -21,7 +21,7 @@ public class LSBEncoder {
 
         int width = stegoImage.getWidth();
         int height = stegoImage.getHeight();
-        int imageCapacity = width * height; // Corrected capacity calculation to reflect actual encoding process
+        int imageCapacity = width * height; // Corrected capacity calculation
         Log.d(TAG, "Image dimensions: " + width + "x" + height + ", Capacity: " + imageCapacity + " bits");
 
         // Calculate checksum
@@ -41,8 +41,8 @@ public class LSBEncoder {
             return null;
         }
 
-        // Encode message length and message
-        String messageLengthBinary = String.format("%32s", Integer.toBinaryString(message.length())).replace(' ', '0');
+        // Encode message length in bits (including checksum) and message
+        String messageLengthBinary = String.format("%32s", Integer.toBinaryString(messageBitLength)).replace(' ', '0');
         encodeBits(stegoImage, messageLengthBinary + binaryMessage, 0);
 
         Log.d(TAG, "Message encoding completed.");
