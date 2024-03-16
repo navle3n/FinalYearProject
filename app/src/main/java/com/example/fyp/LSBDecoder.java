@@ -31,9 +31,12 @@ public class LSBDecoder {
         int messageLengthInBits = Integer.parseInt(lengthBits.toString(), 2);
         Log.d(TAG, "Decoded message length (in bits): " + messageLengthInBits);
 
+        // Adjust messageLengthInBits to account for the checksum
+        int adjustedMessageLength = messageLengthInBits - 32; // Subtract checksum length
+
         // Now decode the actual message
         StringBuilder binaryMessage = new StringBuilder();
-        for (int i = 32; i < 32 + messageLengthInBits; i++) {
+        for (int i = 32; i < 32 + adjustedMessageLength; i++) { // Use adjustedMessageLength
             int x = (i % width);
             int y = (i / width);
             int pixel = stegoImage.getPixel(x, y);
