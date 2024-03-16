@@ -81,8 +81,7 @@ public class BPCSEncoder {
 
     // Method to calculate the complexity of a pixel
     private static int calculateComplexity(int pixel) {
-        // Example complexity calculation (sum of absolute differences of neighboring pixels)
-        // Modify this based on a more accurate complexity measure if needed
+        // complexity calculation (sum of absolute differences of neighboring pixels)
         int red = Color.red(pixel);
         int green = Color.green(pixel);
         int blue = Color.blue(pixel);

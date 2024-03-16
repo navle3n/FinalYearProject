@@ -1,91 +1,56 @@
 package com.example.fyp;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.util.Log;
 
 public class LSBDecoder {
 
+    private static final String TAG = "LSBDecoder";
+
     public static String decodeMessage(Bitmap stegoImage) {
+        Log.d(TAG, "Starting message decoding");
+
+        if (stegoImage == null) {
+            Log.e(TAG, "Stego image is null. Decoding aborted.");
+            return "Error: Stego image is null.";
+        }
+
         int width = stegoImage.getWidth();
         int height = stegoImage.getHeight();
+        Log.d(TAG, "Decoding from image dimensions: " + width + "x" + height);
 
-        StringBuilder messageBuilder = new StringBuilder();
+        // Decode the message length
+        StringBuilder lengthBits = new StringBuilder();
+        for (int i = 0; i < 32; i++) {
+            int x = i % width;
+            int y = i / width;
+            int pixel = stegoImage.getPixel(x, y);
+            int bit = pixel & 1;
+            lengthBits.append(bit);
+        }
+        int messageLengthInBits = Integer.parseInt(lengthBits.toString(), 2);
+        Log.d(TAG, "Decoded message length (in bits): " + messageLengthInBits);
 
-        // Variable to track the message length
-        int messageLength = 0;
+        // Now decode the actual message
+        StringBuilder binaryMessage = new StringBuilder();
+        for (int i = 32; i < 32 + messageLengthInBits; i++) {
+            int x = (i % width);
+            int y = (i / width);
+            int pixel = stegoImage.getPixel(x, y);
+            int bit = pixel & 1;
+            binaryMessage.append(bit);
+        }
+        Log.d(TAG, "Binary message: " + binaryMessage.toString());
 
-        // Variable to track the current bit index in the message
-        int bitIndex = 0;
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int pixel = stegoImage.getPixel(x, y);
-                int red = Color.red(pixel);
-                int green = Color.green(pixel);
-                int blue = Color.blue(pixel);
-
-                // Extract the least significant bits from each color channel
-                char redLSB = (char) (red & 1);
-                char greenLSB = (char) (green & 1);
-                char blueLSB = (char) (blue & 1);
-
-                // Increment the message length bits
-                messageLength |= (redLSB << bitIndex++);
-                messageLength |= (greenLSB << bitIndex++);
-                messageLength |= (blueLSB << bitIndex++);
-
-                // Check if we have enough bits to determine the message length
-                if (bitIndex >= 32) {
-                    // We have extracted the message length, exit the loop
-                    break;
-                }
-            }
-            if (bitIndex >= 32) {
-                // We have extracted the message length, exit the outer loop
-                break;
-            }
+        // Convert binary message to string
+        StringBuilder decodedMessage = new StringBuilder();
+        for (int i = 0; i < binaryMessage.length(); i += 8) {
+            String byteString = binaryMessage.substring(i, i + 8);
+            int charCode = Integer.parseInt(byteString, 2);
+            decodedMessage.append((char) charCode);
         }
 
-        // Reset bit index for decoding the actual message
-        bitIndex = 0;
-
-        // Extract the message using the determined message length
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (bitIndex >= messageLength * 8) {
-                    // We have extracted the entire message, exit the loop
-                    break;
-                }
-
-                int pixel = stegoImage.getPixel(x, y);
-                int red = Color.red(pixel);
-                int green = Color.green(pixel);
-                int blue = Color.blue(pixel);
-
-                // Extract the least significant bits from each color channel
-                char redLSB = (char) (red & 1);
-                char greenLSB = (char) (green & 1);
-                char blueLSB = (char) (blue & 1);
-
-                // Append the LSBs to the message builder
-                messageBuilder.append(redLSB);
-                messageBuilder.append(greenLSB);
-                messageBuilder.append(blueLSB);
-
-                // Increment the bit index
-                bitIndex += 3;
-            }
-        }
-
-        // Convert the binary message to a string
-        String message = messageBuilder.toString();
-
-        // Remove the padding null characters and the message terminator
-        int nullIndex = message.indexOf('\0');
-        if (nullIndex != -1) {
-            message = message.substring(0, nullIndex);
-        }
-
-        return message;
+        Log.d(TAG, "Decoded message: " + decodedMessage.toString());
+        return decodedMessage.toString();
     }
 }

@@ -1,61 +1,66 @@
 package com.example.fyp;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.util.Log;
+import java.util.zip.CRC32;
 
 public class LSBEncoder {
 
-    // Function to encode a message into an image
+    private static final String TAG = "LSBEncoder";
+
     public static Bitmap encodeMessage(Bitmap coverImage, String message) {
-        int width = coverImage.getWidth();
-        int height = coverImage.getHeight();
-        Bitmap stegoImage = Bitmap.createBitmap(width, height, coverImage.getConfig());
+        Log.d(TAG, "Starting message encoding");
 
-        int messageLength = message.length();
-        int messageIndex = 0;
-
-        // Encode message length into the first 32 bits of the image
-        int remainingMessageLength = messageLength;
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int pixel = coverImage.getPixel(x, y);
-                int alpha = Color.alpha(pixel);
-                int red = Color.red(pixel);
-                int green = Color.green(pixel);
-                int blue = Color.blue(pixel);
-
-                // Encode the message length into the first 32 bits of the image
-                if (messageIndex < 32) {
-                    int bit = (messageLength >> (31 - messageIndex)) & 1;
-                    red = modifyLSB(red, bit);
-                    messageIndex++;
-                }
-
-                // Encode the message into the remaining bits of the image
-                else if (messageIndex - 32 < messageLength) {
-                    char c = message.charAt(messageIndex - 32);
-                    String binaryChar = String.format("%8s", Integer.toBinaryString(c)).replace(' ', '0');
-
-                    // Modify the least significant bits of the color channels
-                    red = modifyLSB(red, binaryChar.charAt(0));
-                    green = modifyLSB(green, binaryChar.charAt(1));
-                    blue = modifyLSB(blue, binaryChar.charAt(2));
-
-                    messageIndex++;
-                }
-
-                // Create a new pixel with modified color values
-                int newPixel = Color.argb(alpha, red, green, blue);
-                stegoImage.setPixel(x, y, newPixel);
-            }
+        if (coverImage == null) {
+            Log.e(TAG, "Cover image is null. Encoding aborted.");
+            return null;
         }
 
+        // Ensure image is mutable
+        Bitmap stegoImage = coverImage.copy(Bitmap.Config.ARGB_8888, true);
+
+        int width = stegoImage.getWidth();
+        int height = stegoImage.getHeight();
+        int imageCapacity = width * height; // Corrected capacity calculation to reflect actual encoding process
+        Log.d(TAG, "Image dimensions: " + width + "x" + height + ", Capacity: " + imageCapacity + " bits");
+
+        // Calculate checksum
+        CRC32 crc = new CRC32();
+        crc.update(message.getBytes());
+        String checksumBinary = Long.toBinaryString(crc.getValue());
+        checksumBinary = String.format("%32s", checksumBinary).replace(' ', '0');
+
+        String binaryMessage = message.chars()
+                .mapToObj(c -> String.format("%8s", Integer.toBinaryString(c)).replace(' ', '0'))
+                .reduce("", (acc, b) -> acc + b);
+        binaryMessage += checksumBinary; // Append checksum at the end
+
+        int messageBitLength = binaryMessage.length();
+        if (messageBitLength + 32 > imageCapacity) {
+            Log.e(TAG, "Message is too long for the provided image. Required: " + (messageBitLength + 32) + ", Capacity: " + imageCapacity);
+            return null;
+        }
+
+        // Encode message length and message
+        String messageLengthBinary = String.format("%32s", Integer.toBinaryString(message.length())).replace(' ', '0');
+        encodeBits(stegoImage, messageLengthBinary + binaryMessage, 0);
+
+        Log.d(TAG, "Message encoding completed.");
         return stegoImage;
     }
 
-    // Function to modify the least significant bit of a color channel
-    private static int modifyLSB(int color, int bit) {
-        // Clear the least significant bit and set it to the desired value
-        return (color & 0xFE) | bit;
+    private static void encodeBits(Bitmap image, String bits, int offset) {
+        for (int i = offset; i < bits.length(); i++) {
+            int bit = bits.charAt(i) - '0';
+            int pixelIndex = i;
+            int x = pixelIndex % image.getWidth();
+            int y = pixelIndex / image.getWidth();
+
+            int pixel = image.getPixel(x, y);
+            int newPixel = ((pixel & ~1) | bit); // Set the LSB of the pixel
+            image.setPixel(x, y, newPixel);
+
+            Log.d(TAG, "Encoded bit: " + bit + " into pixel: (" + x + "," + y + ")");
+        }
     }
 }
