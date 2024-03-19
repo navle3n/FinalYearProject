@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +43,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initializeUI();
+
+        Button signOutButton = findViewById(R.id.sign_out_button);
+        signOutButton.setOnClickListener(v -> {
+            // Sign out from Firebase
+            FirebaseAuth.getInstance().signOut();
+
+            // Redirect to AuthenticationActivity
+            Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear the stack to prevent user coming back to MainActivity on pressing back button
+            startActivity(intent);
+        });
     }
 
     private void initializeUI() {
@@ -70,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadImage(Uri selectedImageUri) {
-        imageUri = selectedImageUri; // Assign the selected Uri to the class level variable
+        imageUri = selectedImageUri;
         try {
             Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
             imageView.setImageBitmap(selectedImageBitmap);
@@ -82,23 +95,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideMessage() {
         String message = messageEditText.getText().toString();
-        Log.d(TAG, "Message entered: " + message); // Log to check the message input
         if (imageUri != null && !message.isEmpty()) {
             new HideMessageTask().execute(message);
         } else {
-            if (imageUri == null) {
-                Log.d(TAG, "Image URI is null.");
-            }
-            if (message.isEmpty()) {
-                Log.d(TAG, "Message is empty.");
-            }
             Toast.makeText(this, "Please select an image and enter a message", Toast.LENGTH_SHORT).show();
         }
     }
 
-
-
-    // Method to initiate extracting message from the image
     private void extractMessage() {
         if (imageUri != null) {
             new ExtractMessageTask().execute(imageUri);
@@ -107,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Method to display extracted message in a popup dialog
     private void showMessagePopup(String message) {
         View alertLayout = getLayoutInflater().inflate(R.layout.popup_message, null);
         TextView textViewMessage = alertLayout.findViewById(R.id.extracted_message_textview);
@@ -120,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    // AsyncTask to hide message within the image + onPostExecute method in HideMessageTask to save the encoded image
     private class HideMessageTask extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... params) {
@@ -138,19 +139,17 @@ public class MainActivity extends AppCompatActivity {
             if (encodedImage != null) {
                 imageView.setImageBitmap(encodedImage);
                 Toast.makeText(MainActivity.this, "Message hidden successfully", Toast.LENGTH_SHORT).show();
-                // Save the encoded image under the Downloads directory
                 saveEncodedImageToFile(encodedImage, "stegImage.png");
             } else {
                 Toast.makeText(MainActivity.this, "Failed to hide message", Toast.LENGTH_SHORT).show();
             }
         }
     }
-    // New method to save the encoded image
+
     private void saveEncodedImageToFile(Bitmap bitmap, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        // Change from DIRECTORY_DOWNLOADS to DIRECTORY_PICTURES
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
 
         Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -164,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // AsyncTask to extract message from the image
     private class ExtractMessageTask extends AsyncTask<Uri, Void, String> {
         @Override
         protected String doInBackground(Uri... params) {

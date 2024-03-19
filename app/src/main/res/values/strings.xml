@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">fyp</string>
-    <string name="client_id">760189534563-b009o5ag5g3pumkvpuj2tim6l5o5h80u.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">760189534563-b009o5ag5g3pumkvpuj2tim6l5o5h80u.apps.googleusercontent.com></string>
 </resources>
