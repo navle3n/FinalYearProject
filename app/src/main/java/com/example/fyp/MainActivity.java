@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_SELECT_IMAGE = 1;
     private static final String TAG = "MainActivity";
     private Uri imageUri;
-
     private EditText messageEditText;
     private ImageView imageView;
 
@@ -65,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         hideMessageButton.setOnClickListener(v -> hideMessage());
         Button extractMessageButton = findViewById(R.id.extract_message_button);
         extractMessageButton.setOnClickListener(v -> extractMessage());
+    }
+    public void startPSNRCalculationActivity(View view) {
+        Intent intent = new Intent(MainActivity.this, PSNRCalculationActivity.class);
+        startActivity(intent);
     }
 
     private void selectImage() {
@@ -172,8 +175,6 @@ public class MainActivity extends AppCompatActivity {
                 return LSBDecoder.decodeMessage(stegoImage);
             } catch (FileNotFoundException e) {
                 Log.e(TAG, "File not found for decoding", e);
-            } catch (IOException e) {
-                Log.e(TAG, "IOException during decoding", e);
             }
             return null;
         }
@@ -186,5 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Failed to extract message", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 }

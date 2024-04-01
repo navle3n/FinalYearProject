@@ -1,6 +1,7 @@
 package com.example.fyp;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ public class RegisterActivity extends AppCompatActivity {
         Button registerButton = findViewById(R.id.register_btn);
 
         registerButton.setOnClickListener(view -> {
+            Log.d("RegisterActivity", "Register button clicked");
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
             RegisterHelper.registerWithEmailAndPassword(email, password, mAuth, this);

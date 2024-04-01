@@ -12,6 +12,7 @@ public class RegisterHelper {
 
     public static void registerWithEmailAndPassword(String email, String password, FirebaseAuth mAuth, Context context) {
         Log.d(TAG, "Attempting to register with email: " + email);
+        Log.d(TAG, "registerWithEmailAndPassword: starting registration for email: " + email);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

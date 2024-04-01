@@ -31,7 +31,12 @@ public class AuthenticationActivity extends AppCompatActivity {
         EditText passwordInput = findViewById(R.id.password_input);
         Button loginButton = findViewById(R.id.login_btn);
         ImageView googleSignInButton = findViewById(R.id.google_btn);
-
+        Button registerButton = findViewById(R.id.register_btn);
+        registerButton.setOnClickListener(view -> {
+            // Create an Intent to start RegisterActivity
+            Intent intent = new Intent(AuthenticationActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
         loginButton.setOnClickListener(view -> {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
@@ -50,7 +55,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         Intent signInIntent = GoogleSignIn.getClient(this, gso).getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

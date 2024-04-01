@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="Enter message to hide / extract"
+        android:hint="Enter message to hide"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -55,12 +55,31 @@
         android:layout_below="@id/hide_message_button"
         android:layout_marginTop="16dp" />
 
+
+    <!-- Button for extracting message from image -->
+    <Button
+        android:id="@+id/share_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share"
+        android:layout_below="@id/extract_message_button"
+        android:layout_marginTop="16dp" />
+    <Button
+        android:id="@+id/psnr_calculation_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PSNR Calculation"
+        android:layout_below="@+id/share_button"
+        android:onClick="startPSNRCalculationActivity"
+        android:layout_marginTop="16dp"/>
+
+
     <!-- Button for signing out -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sign_out_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Out"
-        android:layout_below="@id/extract_message_button"
+        android:layout_below="@id/psnr_calculation_button"
         android:layout_marginTop="16dp" />
 </RelativeLayout>
