@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         extractMessageButton.setOnClickListener(v -> extractMessage());
     }
     public void startPSNRCalculationActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, PSNRCalculationActivity.class);
+        Intent intent = new Intent(MainActivity.this, CalculationActivity.class);
         startActivity(intent);
     }
 

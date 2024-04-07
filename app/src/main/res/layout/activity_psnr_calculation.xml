@@ -1,33 +1,53 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/select_cover_image_button"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:text="Select Cover Image"
+        android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/select_cover_image_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Cover Image"/>
+    <ImageView
+        android:id="@+id/cover_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:layout_marginBottom="16dp"/>
 
-        <Button
-            android:id="@+id/select_encoded_image_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Encoded Image"
-            android:layout_marginTop="16dp"/>
+    <Button
+        android:id="@+id/select_encoded_image_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Encoded Image"
+        android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/calculate_psnr_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Calculate PSNR"
-            android:layout_marginTop="32dp"/>
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/encoded_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:layout_marginBottom="16dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+        android:id="@+id/calculate_psnr_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calculate PSNR"/>
+
+    <Button
+        android:id="@+id/calculate_ssim_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calculate SSIM"
+        android:layout_below="@id/calculate_psnr_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>
