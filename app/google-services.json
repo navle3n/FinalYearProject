@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "760189534563",
+    "firebase_url": "https://fypauth-ed155-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "fypauth-ed155",
     "storage_bucket": "fypauth-ed155.appspot.com"
   },
@@ -14,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "760189534563-ft7j4geq99r3b3p9m12jnt1f9780oho9.apps.googleusercontent.com",
+          "client_id": "760189534563-v1kkg58qjo32jq3klsfta1ea0qfvolc3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.fyp",
-            "certificate_hash": "638e9293fdf817a1f02ebcddf50f6a5aabe07a90"
+            "certificate_hash": "fd016bd35dedf282ff4f72a3d60d98a5e285cfa8"
           }
         },
         {

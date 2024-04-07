@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Uri imageUri;
     private EditText messageEditText;
     private ImageView imageView;
+    private Button shareImageButton, viewSharedImagesButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initializeUI();
+        // Initialize buttons for sharing and viewing images
+        shareImageButton = findViewById(R.id.share_button);
+        viewSharedImagesButton = findViewById(R.id.view_shared_images_btn);
 
+        // Set up the OnClickListener for the image sharing button
+        shareImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Share button clicked");
+                Intent shareIntent = new Intent(MainActivity.this, ShareImageActivity.class);
+                startActivity(shareIntent);
+            }
+        });
+
+
+        // Set up the OnClickListener for the button to view shared images
+        viewSharedImagesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent to start ViewSharedImagesActivity
+                Intent viewIntent = new Intent(MainActivity.this, ViewSharedImagesActivity.class);
+                startActivity(viewIntent);
+            }
+        });
         Button signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(v -> {
             // Sign out from Firebase

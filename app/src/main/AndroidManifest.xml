@@ -36,7 +36,8 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="true" />
-
+        <activity android:name=".ShareImageActivity" />
+        <activity android:name=".ViewSharedImagesActivity" />
         <!-- Meta-data for Google Play services -->
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -15,6 +15,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Enter message to hide"
+        android:maxLines="3"
+        android:scrollbars="vertical"
+        android:overScrollMode="ifContentScrolls"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -55,8 +58,6 @@
         android:layout_below="@id/hide_message_button"
         android:layout_marginTop="16dp" />
 
-
-    <!-- Button for extracting message from image -->
     <Button
         android:id="@+id/share_button"
         android:layout_width="match_parent"
@@ -64,12 +65,21 @@
         android:text="Share"
         android:layout_below="@id/extract_message_button"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/view_shared_images_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Images Shared With Me"
+        android:layout_below="@id/share_button"
+        android:layout_marginTop="16dp"/>
+
     <Button
         android:id="@+id/psnr_calculation_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PSNR Calculation"
-        android:layout_below="@+id/share_button"
+        android:layout_below="@+id/view_shared_images_btn"
         android:onClick="startPSNRCalculationActivity"
         android:layout_marginTop="16dp"/>
 
