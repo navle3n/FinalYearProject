@@ -21,6 +21,7 @@ import java.io.InputStream;
 
 public class CalculationActivity extends AppCompatActivity {
 
+    private static final String TAG = "CalculationActivity";
     private static final int REQUEST_SELECT_COVER_IMAGE = 1;
     private static final int REQUEST_SELECT_ENCODED_IMAGE = 2;
     private Uri coverImageUri;
@@ -36,7 +37,7 @@ public class CalculationActivity extends AppCompatActivity {
         Button selectCoverImageButton = findViewById(R.id.select_cover_image_button);
         Button selectEncodedImageButton = findViewById(R.id.select_encoded_image_button);
         Button calculatePsnrButton = findViewById(R.id.calculate_psnr_button);
-        Button calculateSsimButton = findViewById(R.id.calculate_ssim_button); // SSIM button
+        Button calculateSsimButton = findViewById(R.id.calculate_ssim_button);
 
         coverImageView = findViewById(R.id.cover_image_view);
         encodedImageView = findViewById(R.id.encoded_image_view);
@@ -44,15 +45,15 @@ public class CalculationActivity extends AppCompatActivity {
         selectCoverImageButton.setOnClickListener(v -> selectImage(REQUEST_SELECT_COVER_IMAGE));
         selectEncodedImageButton.setOnClickListener(v -> selectImage(REQUEST_SELECT_ENCODED_IMAGE));
         calculatePsnrButton.setOnClickListener(v -> calculatePSNR());
-        calculateSsimButton.setOnClickListener(v -> calculateSSIM()); // Set OnClickListener for SSIM
+        calculateSsimButton.setOnClickListener(v -> calculateSSIM());
 
-        Log.d("CalculationActivity", "Activity created and listeners initialized.");
+        Log.d(TAG, "Activity created and listeners initialized.");
     }
 
     private void selectImage(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, requestCode);
-        Log.d("CalculationActivity", "Image selection intent triggered.");
+        Log.d(TAG, "Image selection intent triggered.");
     }
 
     @Override
@@ -63,11 +64,11 @@ public class CalculationActivity extends AppCompatActivity {
             if (requestCode == REQUEST_SELECT_COVER_IMAGE) {
                 coverImageUri = selectedImageUri;
                 updateImageView(coverImageView, coverImageUri);
-                Log.d("CalculationActivity", "Cover image selected and displayed.");
+                Log.d(TAG, "Cover image selected and displayed.");
             } else if (requestCode == REQUEST_SELECT_ENCODED_IMAGE) {
                 encodedImageUri = selectedImageUri;
                 updateImageView(encodedImageView, encodedImageUri);
-                Log.d("CalculationActivity", "Encoded image selected and displayed.");
+                Log.d(TAG, "Encoded image selected and displayed.");
             }
         }
     }
@@ -75,6 +76,7 @@ public class CalculationActivity extends AppCompatActivity {
     private void calculatePSNR() {
         if (coverImageUri == null || encodedImageUri == null) {
             showDialog("Error", "Please select both images before calculating PSNR.");
+            Log.e("Error", "Please select both images before calculating PSNR.");
             return;
         }
 
@@ -85,19 +87,23 @@ public class CalculationActivity extends AppCompatActivity {
             if (coverImage.getWidth() != encodedImage.getWidth() ||
                     coverImage.getHeight() != encodedImage.getHeight()) {
                 showDialog("Error", "Images must have the same dimensions.");
+                Log.e("Error", "Images must have the same dimensions.");
                 return;
             }
 
             double psnr = PSNRCalculationHelper.calculatePSNR(coverImage, encodedImage);
             showDialog("PSNR Calculation", "PSNR: " + psnr + " dB");
+            Log.e("PSNR Calculation", "PSNR: " + psnr + " dB");
         } catch (IOException e) {
             showDialog("Error", "Error loading images for PSNR calculation.");
+            Log.e("Error", "Error loading images for PSNR calculation.");
         }
     }
 
     private void calculateSSIM() {
         if (coverImageUri == null || encodedImageUri == null) {
             showDialog("Error", "Please select both images before calculating SSIM.");
+            Log.e("Error", "Please select both images before calculating SSIM.");
             return;
         }
 
@@ -108,13 +114,16 @@ public class CalculationActivity extends AppCompatActivity {
             if (coverImage.getWidth() != encodedImage.getWidth() ||
                     coverImage.getHeight() != encodedImage.getHeight()) {
                 showDialog("Error", "Images must have the same dimensions for SSIM calculation.");
+                Log.e("Error", "Images must have the same dimensions for SSIM calculation.");
                 return;
             }
 
             double ssim = SSIMCalculationHelper.calculateSSIM(coverImage, encodedImage);
             showDialog("SSIM Calculation", "SSIM: " + ssim);
+            Log.e("SSIM Calculation", "SSIM: " + ssim);
         } catch (IOException e) {
             showDialog("Error", "Error loading images for SSIM calculation.");
+            Log.e("Error", "Error loading images for SSIM calculation.");
         }
     }
 
@@ -128,6 +137,7 @@ public class CalculationActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             imageView.setImageBitmap(bitmap);
+            Log.d(TAG, "ImageView updated with new image.");
         } catch (IOException e) {
             Log.e("CalculationActivity", "Error updating image view.", e);
         }

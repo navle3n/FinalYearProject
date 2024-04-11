@@ -104,5 +104,16 @@
                     android:layout_marginTop="16dp"
                     android:hint="Enter encryption password"
                     android:inputType="textPassword"/>
+
+            <!-- TextView for displaying the current user's email -->
+            <TextView
+                android:id="@+id/user_email_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="User email"
+                android:textAlignment="center"
+                android:layout_marginTop="16dp"
+                android:layout_below="@id/sign_out_button"/>
+
         </RelativeLayout>
     </ScrollView>

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private Uri imageUri;
     private EditText messageEditText, passwordEditText;
     private ImageView imageView;
+    private TextView userEmailTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,16 @@ public class MainActivity extends AppCompatActivity {
         extractMessageButton.setOnClickListener(v -> extractMessage());
         Button signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(v -> signOut());
+        userEmailTextView = findViewById(R.id.user_email_text_view);
+
+        // Fetch the current user's email from Firebase Auth and display it
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && currentUser.getEmail() != null) {
+            userEmailTextView.setText(currentUser.getEmail());
+        } else {
+            userEmailTextView.setText("No user logged in");
+        }
+
     }
 
     private void selectImage() {

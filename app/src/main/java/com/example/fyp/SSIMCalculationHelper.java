@@ -18,8 +18,7 @@ public class SSIMCalculationHelper {
         }
 
         double ssim = 0.0;
-        // Loop through images - This example uses the full image as one window for simplicity
-        // For better accuracy, you should divide the images into smaller windows and average the SSIM values
+        // TODO: maybe divide the images into smaller windows and average the SSIM values rather than using the image as one window?
         double meanX = calculateMean(img1);
         double meanY = calculateMean(img2);
         double varianceX = calculateVariance(img1, meanX);
@@ -45,14 +44,27 @@ public class SSIMCalculationHelper {
         return (0.299 * ((color >> 16) & 0xff)) + (0.587 * ((color >> 8) & 0xff)) + (0.114 * (color & 0xff));
     }
 
-    // Implement the variance and covariance calculations similarly, based on the mathematical definitions
     private static double calculateVariance(Bitmap img, double mean) {
-        // Your implementation here
-        return 0.0; // Placeholder
+        double variance = 0.0;
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                double value = greyScale(img.getPixel(x, y));
+                variance += Math.pow(value - mean, 2);
+            }
+        }
+        return variance / (img.getWidth() * img.getHeight());
     }
 
     private static double calculateCovariance(Bitmap img1, Bitmap img2, double meanX, double meanY) {
-        // Your implementation here
-        return 0.0; // Placeholder
+        double covariance = 0.0;
+        for (int y = 0; y < img1.getHeight(); y++) {
+            for (int x = 0; x < img1.getWidth(); x++) {
+                double valueX = greyScale(img1.getPixel(x, y));
+                double valueY = greyScale(img2.getPixel(x, y));
+                covariance += (valueX - meanX) * (valueY - meanY);
+            }
+        }
+        return covariance / (img1.getWidth() * img1.getHeight());
     }
+
 }
