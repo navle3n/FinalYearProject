@@ -7,7 +7,7 @@ public class LSBDecoder {
 
     private static final String TAG = "LSBDecoder";
 
-    public static String decodeMessage(Bitmap stegoImage) {
+    public static String decodeMessage(Bitmap stegoImage, String password) {
         Log.d(TAG, "Starting message decoding");
 
         if (stegoImage == null) {
@@ -46,14 +46,25 @@ public class LSBDecoder {
         Log.d(TAG, "Binary message: " + binaryMessage.toString());
 
         // Convert binary message to string
-        StringBuilder decodedMessage = new StringBuilder();
-        for (int i = 0; i < binaryMessage.length(); i += 8) {
-            String byteString = binaryMessage.substring(i, i + 8);
-            int charCode = Integer.parseInt(byteString, 2);
-            decodedMessage.append((char) charCode);
+        StringBuilder decryptedMessage = new StringBuilder();
+        try {
+            String encryptedMessage = binaryToString(binaryMessage.toString());
+            decryptedMessage.append(AESUtil.decrypt(encryptedMessage, password));
+        } catch (Exception e) {
+            Log.e(TAG, "Decryption error", e);
+            return "Decryption error";
         }
 
-        Log.d(TAG, "Decoded message: " + decodedMessage.toString());
-        return decodedMessage.toString();
+        Log.d(TAG, "Decoded and decrypted message: " + decryptedMessage.toString());
+        return decryptedMessage.toString();
+    }
+
+    private static String binaryToString(String binary) {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < binary.length(); i += 8) {
+            int charCode = Integer.parseInt(binary.substring(i, i + 8), 2);
+            text.append((char) charCode);
+        }
+        return text.toString();
     }
 }

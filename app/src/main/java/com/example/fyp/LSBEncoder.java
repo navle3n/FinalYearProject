@@ -8,7 +8,7 @@ public class LSBEncoder {
 
     private static final String TAG = "LSBEncoder";
 
-    public static Bitmap encodeMessage(Bitmap coverImage, String message) {
+    public static Bitmap encodeMessage(Bitmap coverImage, String message, String password) {
         Log.d(TAG, "Starting message encoding");
 
         if (coverImage == null) {
@@ -29,12 +29,20 @@ public class LSBEncoder {
         crc.update(message.getBytes());
         String checksumBinary = Long.toBinaryString(crc.getValue());
         checksumBinary = String.format("%32s", checksumBinary).replace(' ', '0');
+        // Encrypt the message
+        try {
+            message = AESUtil.encrypt(message, password); // Encrypt using AES
+            Log.e(TAG, "Message encrypted " + message);
+        } catch (Exception e) {
+            Log.e(TAG, "Encryption error", e);
+            return null;
+        }
 
         String binaryMessage = message.chars()
                 .mapToObj(c -> String.format("%8s", Integer.toBinaryString(c)).replace(' ', '0'))
                 .reduce("", (acc, b) -> acc + b);
         binaryMessage += checksumBinary; // Append checksum at the end
-
+        Log.e(TAG, "Message in binary " + binaryMessage);
         int messageBitLength = binaryMessage.length();
         if (messageBitLength + 32 > imageCapacity) {
             Log.e(TAG, "Message is too long for the provided image. Required: " + (messageBitLength + 32) + ", Capacity: " + imageCapacity);

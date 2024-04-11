@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -23,19 +22,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_SELECT_IMAGE = 1;
     private static final String TAG = "MainActivity";
     private Uri imageUri;
-    private EditText messageEditText;
+    private EditText messageEditText, passwordEditText;
     private ImageView imageView;
-    private Button shareImageButton, viewSharedImagesButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,44 +39,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initializeUI();
-        // Initialize buttons for sharing and viewing images
-        shareImageButton = findViewById(R.id.share_button);
-        viewSharedImagesButton = findViewById(R.id.view_shared_images_btn);
-
-        // Set up the OnClickListener for the image sharing button
-        shareImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Share button clicked");
-                Intent shareIntent = new Intent(MainActivity.this, ShareImageActivity.class);
-                startActivity(shareIntent);
-            }
-        });
-
-
-        // Set up the OnClickListener for the button to view shared images
-        viewSharedImagesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Intent to start ViewSharedImagesActivity
-                Intent viewIntent = new Intent(MainActivity.this, ViewSharedImagesActivity.class);
-                startActivity(viewIntent);
-            }
-        });
-        Button signOutButton = findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(v -> {
-            // Sign out from Firebase
-            FirebaseAuth.getInstance().signOut();
-
-            // Redirect to AuthenticationActivity
-            Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear the stack to prevent user coming back to MainActivity on pressing back button
-            startActivity(intent);
-        });
     }
 
     private void initializeUI() {
         messageEditText = findViewById(R.id.message_edit_text);
+        passwordEditText = findViewById(R.id.password_edit_text);
         imageView = findViewById(R.id.image_view);
         Button selectImageButton = findViewById(R.id.select_image_button);
         selectImageButton.setOnClickListener(v -> selectImage());
@@ -88,91 +51,108 @@ public class MainActivity extends AppCompatActivity {
         hideMessageButton.setOnClickListener(v -> hideMessage());
         Button extractMessageButton = findViewById(R.id.extract_message_button);
         extractMessageButton.setOnClickListener(v -> extractMessage());
+        Button signOutButton = findViewById(R.id.sign_out_button);
+        signOutButton.setOnClickListener(v -> signOut());
+    }
+
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), 1);
     }
     public void startPSNRCalculationActivity(View view) {
         Intent intent = new Intent(MainActivity.this, CalculationActivity.class);
         startActivity(intent);
     }
 
-    private void selectImage() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_SELECT_IMAGE);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            loadImage(selectedImageUri);
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData();
+            loadImage(imageUri);
         }
     }
 
     private void loadImage(Uri selectedImageUri) {
-        imageUri = selectedImageUri;
         try {
-            Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
             imageView.setImageBitmap(selectedImageBitmap);
-        } catch (IOException e) {
-            Log.e(TAG, "Error loading image", e);
+        } catch (Exception e) {
             Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void hideMessage() {
         String message = messageEditText.getText().toString();
-        if (imageUri != null && !message.isEmpty()) {
-            new HideMessageTask().execute(message);
+        String password = passwordEditText.getText().toString();
+        if (imageUri != null && !message.isEmpty() && !password.isEmpty()) {
+            new HideMessageTask(password).execute(message);
         } else {
-            Toast.makeText(this, "Please select an image and enter a message", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Image, message, and password are required", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void extractMessage() {
-        if (imageUri != null) {
-            new ExtractMessageTask().execute(imageUri);
+        String password = passwordEditText.getText().toString();
+        if (imageUri != null && !password.isEmpty()) {
+            new ExtractMessageTask(password).execute(imageUri);
         } else {
-            Toast.makeText(this, "Please select an image to extract a message from", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Image and password are required", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void showMessagePopup(String message) {
-        View alertLayout = getLayoutInflater().inflate(R.layout.popup_message, null);
-        TextView textViewMessage = alertLayout.findViewById(R.id.extracted_message_textview);
-        textViewMessage.setText(message);
+    private void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
 
-        new AlertDialog.Builder(MainActivity.this)
+    private void showMessagePopup(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
                 .setTitle("Extracted Message")
-                .setView(alertLayout)
                 .setNegativeButton("Close", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
+    // HideMessageTask and ExtractMessageTask implementations
     private class HideMessageTask extends AsyncTask<String, Void, Bitmap> {
+        private String password;
+
+        // Constructor to pass the password for encryption
+        public HideMessageTask(String password) {
+            this.password = password;
+        }
+
         @Override
         protected Bitmap doInBackground(String... params) {
+            String message = params[0];
             try {
-                Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                return LSBEncoder.encodeMessage(selectedImageBitmap, params[0]);
-            } catch (IOException e) {
-                Log.e(TAG, "Error during encoding", e);
+                Bitmap originalImage = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                // Encrypt the message using the password
+                String encryptedMessage = AESUtil.encrypt(message, this.password);
+                // Encode the encrypted message into the image
+                return LSBEncoder.encodeMessage(originalImage, encryptedMessage, this.password);
+            } catch (Exception e) {
+                Log.e(TAG, "Error in hiding message", e);
                 return null;
             }
         }
 
         @Override
-        protected void onPostExecute(Bitmap encodedImage) {
-            if (encodedImage != null) {
-                imageView.setImageBitmap(encodedImage);
+        protected void onPostExecute(Bitmap result) {
+            if (result != null) {
+                imageView.setImageBitmap(result);
                 Toast.makeText(MainActivity.this, "Message hidden successfully", Toast.LENGTH_SHORT).show();
-                saveEncodedImageToFile(encodedImage, "stegImage.png");
+                saveEncodedImageToFile(result, "StegImage.png");
+                Toast.makeText(MainActivity.this, "saved to new file", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this, "Failed to hide message", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
     private void saveEncodedImageToFile(Bitmap bitmap, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
@@ -182,35 +162,44 @@ public class MainActivity extends AppCompatActivity {
         Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            Log.d(TAG, "Stego-image saved to Pictures: " + fileName);
-            Toast.makeText(MainActivity.this, "Image saved to Pictures", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Encoded image saved to Pictures", Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            Log.e(TAG, "Error saving stego-image", e);
-            Toast.makeText(MainActivity.this, "Error saving image", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Failed to save encoded image", Toast.LENGTH_SHORT).show();
         }
     }
 
     private class ExtractMessageTask extends AsyncTask<Uri, Void, String> {
-        @Override
-        protected String doInBackground(Uri... params) {
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(params[0]);
-                Bitmap stegoImage = BitmapFactory.decodeStream(inputStream);
-                return LSBDecoder.decodeMessage(stegoImage);
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "File not found for decoding", e);
-            }
-            return null;
+        private String password;
+
+        // Constructor to pass the password for decryption
+        public ExtractMessageTask(String password) {
+            this.password = password;
         }
 
         @Override
-        protected void onPostExecute(String extractedMessage) {
-            if (extractedMessage != null) {
-                showMessagePopup(extractedMessage);
+        protected String doInBackground(Uri... params) {
+            Uri imageUri = params[0];
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                Bitmap stegoImage = BitmapFactory.decodeStream(inputStream);
+                // Decode the message from the image
+                String extractedEncryptedMessage = LSBDecoder.decodeMessage(stegoImage, this.password);
+                // Decrypt the extracted message
+                return AESUtil.decrypt(extractedEncryptedMessage, this.password);
+            } catch (Exception e) {
+                Log.e(TAG, "Error in extracting message", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                showMessagePopup(result);
             } else {
                 Toast.makeText(MainActivity.this, "Failed to extract message", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
+
 }
