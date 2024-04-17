@@ -1,38 +1,72 @@
-<!-- activity_register.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="#AA6CB5"
     android:padding="16dp"
     tools:context=".RegisterActivity">
 
-    <EditText
-        android:id="@+id/email_input"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"/>
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/password_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"/>
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/baseline_account_circle_24" />
 
-    <Button
-        android:id="@+id/register_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register"/>
+        <EditText
+            android:id="@+id/email_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/rounded_corner"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:padding="18dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/white"
+            android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/google_register_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register with Google"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/password_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_corner"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="18dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/white"
+            android:textSize="20sp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/register_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/white"
+            android:padding="18dp"
+            android:text="Register"
+            android:textColor="#3B84F1"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/google_register_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/white"
+            android:padding="18dp"
+            android:text="Register with Google"
+            android:textColor="#3B84F1"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

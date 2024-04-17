@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initializeUI();
     }
 
@@ -58,14 +57,12 @@ public class MainActivity extends AppCompatActivity {
         signOutButton.setOnClickListener(v -> signOut());
         userEmailTextView = findViewById(R.id.user_email_text_view);
 
-        // Fetch the current user's email from Firebase Auth and display it
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && currentUser.getEmail() != null) {
             userEmailTextView.setText(currentUser.getEmail());
         } else {
             userEmailTextView.setText("No user logged in");
         }
-
     }
 
     private void selectImage() {
@@ -73,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Select Image"), 1);
     }
+
     public void startPSNRCalculationActivity(View view) {
         Intent intent = new Intent(MainActivity.this, CalculationActivity.class);
         startActivity(intent);
@@ -130,11 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    // HideMessageTask and ExtractMessageTask implementations
     private class HideMessageTask extends AsyncTask<String, Void, Bitmap> {
         private String password;
 
-        // Constructor to pass the password for encryption
         public HideMessageTask(String password) {
             this.password = password;
         }
@@ -144,9 +140,7 @@ public class MainActivity extends AppCompatActivity {
             String message = params[0];
             try {
                 Bitmap originalImage = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                // Encrypt the message using the password
                 String encryptedMessage = AESUtil.encrypt(message, this.password);
-                // Encode the encrypted message into the image
                 return LSBEncoder.encodeMessage(originalImage, encryptedMessage, this.password);
             } catch (Exception e) {
                 Log.e(TAG, "Error in hiding message", e);
@@ -160,18 +154,17 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageBitmap(result);
                 Toast.makeText(MainActivity.this, "Message hidden successfully", Toast.LENGTH_SHORT).show();
                 saveEncodedImageToFile(result, "StegImage.png");
-                Toast.makeText(MainActivity.this, "saved to new file", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this, "Failed to hide message", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
     private void saveEncodedImageToFile(Bitmap bitmap, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
-
         Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
@@ -184,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
     private class ExtractMessageTask extends AsyncTask<Uri, Void, String> {
         private String password;
 
-        // Constructor to pass the password for decryption
         public ExtractMessageTask(String password) {
             this.password = password;
         }
@@ -195,9 +187,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
                 Bitmap stegoImage = BitmapFactory.decodeStream(inputStream);
-                // Decode the message from the image
                 String extractedEncryptedMessage = LSBDecoder.decodeMessage(stegoImage, this.password);
-                // Decrypt the extracted message
                 return AESUtil.decrypt(extractedEncryptedMessage, this.password);
             } catch (Exception e) {
                 Log.e(TAG, "Error in extracting message", e);
@@ -214,5 +204,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 }

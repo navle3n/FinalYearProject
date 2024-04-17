@@ -49,5 +49,9 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     testImplementation("org.robolectric:robolectric:4.6.1")
     implementation("com.squareup.picasso:picasso:2.71828")
-
+    testImplementation("org.mockito:mockito-core:4.0.0")
+    androidTestImplementation("androidx.test:core:1.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.ext:truth:1.4.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
 }
