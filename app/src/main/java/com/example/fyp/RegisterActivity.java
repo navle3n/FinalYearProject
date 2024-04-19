@@ -23,7 +23,7 @@ public class RegisterActivity extends AppCompatActivity {
         EditText emailInput = findViewById(R.id.email_input);
         EditText passwordInput = findViewById(R.id.password_input);
         Button registerButton = findViewById(R.id.register_btn);
-        Button googleRegisterButton = findViewById(R.id.google_register_btn); // Ensure this ID matches your layout
+        Button googleRegisterButton = findViewById(R.id.google_register_btn);
 
         registerButton.setOnClickListener(view -> {
             String email = emailInput.getText().toString().trim();

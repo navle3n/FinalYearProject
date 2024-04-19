@@ -63,13 +63,11 @@ public class RegisterHelper {
                 .addOnCompleteListener(activity, task -> {
                     if (task.isSuccessful()) {
                         Log.d("RegisterHelper", "Registration with Google: success");
-                        // Navigate to MainActivity or update UI to reflect successful registration
                         Intent intent = new Intent(activity, MainActivity.class);
                         activity.startActivity(intent);
                         activity.finish();
                     } else {
                         Log.w("RegisterHelper", "Registration with Google: failure", task.getException());
-                        // Update UI to show registration failed (optional)
                     }
                 });
     }

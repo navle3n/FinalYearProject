@@ -76,7 +76,7 @@
             android:id="@+id/calculation_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PSNR Calculation"
+            android:text="Image Quality Calculation"
             android:onClick="startPSNRCalculationActivity"
             android:layout_below="@id/extract_message_button"
             android:layout_marginTop="16dp"/>

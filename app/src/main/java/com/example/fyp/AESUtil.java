@@ -17,10 +17,9 @@ public class AESUtil {
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final int ITERATION_COUNT = 65536;
     private static final int KEY_LENGTH = 256;
-    private static final int SALT_LENGTH = 16; // Bytes
+    private static final int SALT_LENGTH = 16;
 
     public static String encrypt(String data, String password) throws Exception {
-        // Generate a new salt for each encryption
         byte[] salt = new byte[SALT_LENGTH];
         SecureRandom random = new SecureRandom();
         random.nextBytes(salt);
@@ -31,7 +30,6 @@ public class AESUtil {
         cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(Arrays.copyOfRange(salt, 0, 16)));
         byte[] encryptedData = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
 
-        // Prepend salt to encrypted data
         byte[] encryptedDataWithSalt = new byte[salt.length + encryptedData.length];
         System.arraycopy(salt, 0, encryptedDataWithSalt, 0, salt.length);
         System.arraycopy(encryptedData, 0, encryptedDataWithSalt, salt.length, encryptedData.length);
@@ -42,7 +40,6 @@ public class AESUtil {
     public static String decrypt(String encryptedDataWithSalt, String password) throws Exception {
         byte[] decodedData = Base64.decode(encryptedDataWithSalt, Base64.DEFAULT);
 
-        // Extract salt
         byte[] salt = Arrays.copyOfRange(decodedData, 0, SALT_LENGTH);
         byte[] encryptedData = Arrays.copyOfRange(decodedData, SALT_LENGTH, decodedData.length);
 

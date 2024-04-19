@@ -19,7 +19,6 @@ public class LSBDecoder {
         int height = stegoImage.getHeight();
         Log.d(TAG, "Decoding from image dimensions: " + width + "x" + height);
 
-        // Decode the message length
         StringBuilder lengthBits = new StringBuilder();
         for (int i = 0; i < 32; i++) {
             int x = i % width;
@@ -31,12 +30,10 @@ public class LSBDecoder {
         int messageLengthInBits = Integer.parseInt(lengthBits.toString(), 2);
         Log.d(TAG, "Decoded message length (in bits): " + messageLengthInBits);
 
-        // Adjust messageLengthInBits to account for the checksum
-        int adjustedMessageLength = messageLengthInBits - 32; // Subtract checksum length
+        int adjustedMessageLength = messageLengthInBits - 32; //checksum bits
 
-        // Now decode the actual message
         StringBuilder binaryMessage = new StringBuilder();
-        for (int i = 32; i < 32 + adjustedMessageLength; i++) { // Use adjustedMessageLength
+        for (int i = 32; i < 32 + adjustedMessageLength; i++) {
             int x = (i % width);
             int y = (i / width);
             int pixel = stegoImage.getPixel(x, y);
@@ -45,7 +42,6 @@ public class LSBDecoder {
         }
         Log.d(TAG, "Binary message: " + binaryMessage.toString());
 
-        // Convert binary message to string
         StringBuilder decryptedMessage = new StringBuilder();
         try {
             String encryptedMessage = binaryToString(binaryMessage.toString());

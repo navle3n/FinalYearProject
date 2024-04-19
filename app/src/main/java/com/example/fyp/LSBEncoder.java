@@ -16,22 +16,20 @@ public class LSBEncoder {
             return null;
         }
 
-        // Ensure image is mutable
         Bitmap stegoImage = coverImage.copy(Bitmap.Config.ARGB_8888, true);
 
         int width = stegoImage.getWidth();
         int height = stegoImage.getHeight();
-        int imageCapacity = width * height; // Corrected capacity calculation
+        int imageCapacity = width * height;
         Log.d(TAG, "Image dimensions: " + width + "x" + height + ", Capacity: " + imageCapacity + " bits");
 
-        // Calculate checksum
         CRC32 crc = new CRC32();
         crc.update(message.getBytes());
         String checksumBinary = Long.toBinaryString(crc.getValue());
         checksumBinary = String.format("%32s", checksumBinary).replace(' ', '0');
-        // Encrypt the message
+
         try {
-            message = AESUtil.encrypt(message, password); // Encrypt using AES
+            message = AESUtil.encrypt(message, password);
             Log.e(TAG, "Message encrypted " + message);
         } catch (Exception e) {
             Log.e(TAG, "Encryption error", e);
@@ -49,7 +47,6 @@ public class LSBEncoder {
             return null;
         }
 
-        // Encode message length in bits (including checksum) and message
         String messageLengthBinary = String.format("%32s", Integer.toBinaryString(messageBitLength)).replace(' ', '0');
         encodeBits(stegoImage, messageLengthBinary + binaryMessage, 0);
 
@@ -65,7 +62,7 @@ public class LSBEncoder {
             int y = pixelIndex / image.getWidth();
 
             int pixel = image.getPixel(x, y);
-            int newPixel = ((pixel & ~1) | bit); // Set the LSB of the pixel
+            int newPixel = ((pixel & ~1) | bit);
             image.setPixel(x, y, newPixel);
 
             Log.d(TAG, "Encoded bit: " + bit + " into pixel: (" + x + "," + y + ")");

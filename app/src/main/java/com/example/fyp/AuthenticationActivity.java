@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 123; // Request code for signing in
+    private static final int RC_SIGN_IN = 123;
     private FirebaseAuth mAuth;
 
     @Override
@@ -33,7 +33,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         ImageView googleSignInButton = findViewById(R.id.google_btn);
         Button registerButton = findViewById(R.id.register_btn);
         registerButton.setOnClickListener(view -> {
-            // Create an Intent to start RegisterActivity
             Intent intent = new Intent(AuthenticationActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
