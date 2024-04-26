@@ -17,7 +17,6 @@ public class ImagePreviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_preview);
 
         imageViewPreview = findViewById(R.id.image_view_preview);
-
         // Get the selected image URI from the intent
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("imageUri")) {

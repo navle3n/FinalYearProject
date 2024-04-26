@@ -12,12 +12,14 @@ public class SSIMCalculationHelper {
     private static final double C2 = (K2 * L) * (K2 * L);
     private static final double C3 = C2 / 2; // Constant for structure comparison
 
+    // Method to calculate SSIM between two images
     public static double calculateSSIM(Bitmap img1, Bitmap img2) {
         // Ensure the images are the same size
         if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
             throw new IllegalArgumentException("Input images must have the same dimensions.");
         }
 
+        // Calculate components of SSIM
         double luminance = calculateLuminance(img1, img2);
         double contrast = calculateContrast(img1, img2);
         double structure = calculateStructure(img1, img2);
@@ -26,18 +28,21 @@ public class SSIMCalculationHelper {
         return luminance * contrast * structure;
     }
 
+    // Method to calculate luminance component of SSIM
     private static double calculateLuminance(Bitmap img1, Bitmap img2) {
         double meanX = calculateMean(img1);
         double meanY = calculateMean(img2);
         return (2 * meanX * meanY + C1) / (meanX * meanX + meanY * meanY + C1);
     }
 
+    // Method to calculate contrast component of SSIM
     private static double calculateContrast(Bitmap img1, Bitmap img2) {
         double varianceX = calculateVariance(img1, calculateMean(img1));
         double varianceY = calculateVariance(img2, calculateMean(img2));
         return (2 * Math.sqrt(varianceX) * Math.sqrt(varianceY) + C2) / (varianceX + varianceY + C2);
     }
 
+    // Method to calculate structure component of SSIM
     private static double calculateStructure(Bitmap img1, Bitmap img2) {
         double meanX = calculateMean(img1);
         double meanY = calculateMean(img2);
@@ -45,6 +50,7 @@ public class SSIMCalculationHelper {
         return (covariance + C3) / (Math.sqrt(calculateVariance(img1, meanX) * calculateVariance(img2, meanY)) + C3);
     }
 
+    // Method to calculate mean of grayscale values of an image
     private static double calculateMean(Bitmap img) {
         long sum = 0;
         for (int y = 0; y < img.getHeight(); y++) {
@@ -55,10 +61,12 @@ public class SSIMCalculationHelper {
         return (double) sum / (img.getWidth() * img.getHeight());
     }
 
+    // Method to convert RGB color to grayscale
     private static double greyScale(int color) {
         return (0.299 * ((color >> 16) & 0xff)) + (0.587 * ((color >> 8) & 0xff)) + (0.114 * (color & 0xff));
     }
 
+    // Method to calculate variance of grayscale values of an image
     private static double calculateVariance(Bitmap img, double mean) {
         double variance = 0.0;
         for (int y = 0; y < img.getHeight(); y++) {
@@ -70,6 +78,7 @@ public class SSIMCalculationHelper {
         return variance / (img.getWidth() * img.getHeight());
     }
 
+    // Method to calculate covariance between two images
     private static double calculateCovariance(Bitmap img1, Bitmap img2, double meanX, double meanY) {
         double covariance = 0.0;
         for (int y = 0; y < img1.getHeight(); y++) {

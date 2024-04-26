@@ -2,6 +2,7 @@ package com.example.fyp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,19 +22,20 @@ import java.io.InputStream;
 
 public class CalculationActivity extends AppCompatActivity {
 
-    private static final String TAG = "CalculationActivity";
-    private static final int REQUEST_SELECT_COVER_IMAGE = 1;
-    private static final int REQUEST_SELECT_ENCODED_IMAGE = 2;
-    private Uri coverImageUri;
-    private Uri encodedImageUri;
-    private ImageView coverImageView;
-    private ImageView encodedImageView;
+    private static final String TAG = "CalculationActivity"; // Tag for logging
+    private static final int REQUEST_SELECT_COVER_IMAGE = 1; // Request code for selecting cover image
+    private static final int REQUEST_SELECT_ENCODED_IMAGE = 2; // Request code for selecting encoded image
+    private Uri coverImageUri; // URI for selected cover image
+    private Uri encodedImageUri; // URI for selected encoded image
+    private ImageView coverImageView; // ImageView for displaying the cover image
+    private ImageView encodedImageView; // ImageView for displaying the encoded image
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_psnr_calculation);
 
+        // Initialize UI components
         Button selectCoverImageButton = findViewById(R.id.select_cover_image_button);
         Button selectEncodedImageButton = findViewById(R.id.select_encoded_image_button);
         Button calculatePsnrButton = findViewById(R.id.calculate_psnr_button);
@@ -42,6 +44,7 @@ public class CalculationActivity extends AppCompatActivity {
         coverImageView = findViewById(R.id.cover_image_view);
         encodedImageView = findViewById(R.id.encoded_image_view);
 
+        // Set listeners for buttons
         selectCoverImageButton.setOnClickListener(v -> selectImage(REQUEST_SELECT_COVER_IMAGE));
         selectEncodedImageButton.setOnClickListener(v -> selectImage(REQUEST_SELECT_ENCODED_IMAGE));
         calculatePsnrButton.setOnClickListener(v -> calculatePSNR());
@@ -50,6 +53,7 @@ public class CalculationActivity extends AppCompatActivity {
         Log.d(TAG, "Activity created and listeners initialized.");
     }
 
+    // Method to initiate an image selection intent
     private void selectImage(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, requestCode);
@@ -73,6 +77,7 @@ public class CalculationActivity extends AppCompatActivity {
         }
     }
 
+    // Method to calculate PSNR between two images
     private void calculatePSNR() {
         if (coverImageUri == null || encodedImageUri == null) {
             showDialog("Error", "Please select both images before calculating PSNR.");
@@ -100,6 +105,7 @@ public class CalculationActivity extends AppCompatActivity {
         }
     }
 
+    // Method to calculate SSIM between two images
     private void calculateSSIM() {
         if (coverImageUri == null || encodedImageUri == null) {
             showDialog("Error", "Please select both images before calculating SSIM.");
@@ -127,11 +133,13 @@ public class CalculationActivity extends AppCompatActivity {
         }
     }
 
+    // Helper method to fetch a Bitmap from a Uri
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(uri);
         return BitmapFactory.decodeStream(inputStream);
     }
 
+    // Helper method to update ImageView with a new image from Uri
     private void updateImageView(ImageView imageView, Uri imageUri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
@@ -139,10 +147,11 @@ public class CalculationActivity extends AppCompatActivity {
             imageView.setImageBitmap(bitmap);
             Log.d(TAG, "ImageView updated with new image.");
         } catch (IOException e) {
-            Log.e("CalculationActivity", "Error updating image view.", e);
+            Log.e(TAG, "Error updating image view.", e);
         }
     }
 
+    // Method to show a dialog with a title and message
     private void showDialog(String title, String message) {
         new AlertDialog.Builder(this)
                 .setTitle(title)

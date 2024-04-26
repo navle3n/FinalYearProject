@@ -30,36 +30,39 @@ import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private Uri imageUri;
-    private EditText messageEditText, passwordEditText;
-    private ImageView imageView;
-    private TextView userEmailTextView;
+    private static final String TAG = "MainActivity"; // Log tag for debugging
+    private Uri imageUri; // Uri to store the selected image
+    private EditText messageEditText, passwordEditText; // Input fields for the message and password
+    private ImageView imageView; // Displays the selected or processed image
+    private TextView userEmailTextView; // Displays the logged-in user's email
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initializeUI();
+        initializeUI(); // Initialize UI components and set up event listeners
     }
 
     private void initializeUI() {
+        // Binding UI components to their respective views
         messageEditText = findViewById(R.id.message_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
         imageView = findViewById(R.id.image_view);
         Button selectImageButton = findViewById(R.id.select_image_button);
-        selectImageButton.setOnClickListener(v -> selectImage());
         Button hideMessageButton = findViewById(R.id.hide_message_button);
-        hideMessageButton.setOnClickListener(v -> hideMessage());
         Button extractMessageButton = findViewById(R.id.extract_message_button);
-        extractMessageButton.setOnClickListener(v -> extractMessage());
         Button signOutButton = findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(v -> signOut());
         userEmailTextView = findViewById(R.id.user_email_text_view);
         Button aboutPrivacyButton = findViewById(R.id.about_privacy_button);
 
+        // Set onClick listeners for various actions
+        selectImageButton.setOnClickListener(v -> selectImage());
+        hideMessageButton.setOnClickListener(v -> hideMessage());
+        extractMessageButton.setOnClickListener(v -> extractMessage());
+        signOutButton.setOnClickListener(v -> signOut());
         aboutPrivacyButton.setOnClickListener(view -> openPrivacyInfo());
 
+        // Display current user's email, or a default text if no user is logged in
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && currentUser.getEmail() != null) {
             userEmailTextView.setText(currentUser.getEmail());
@@ -67,22 +70,21 @@ public class MainActivity extends AppCompatActivity {
             userEmailTextView.setText("No user logged in");
         }
     }
+
+    // Launch the Privacy Activity
     private void openPrivacyInfo() {
         Intent intent = new Intent(MainActivity.this, PrivacyActivity.class);
         startActivity(intent);
     }
 
+    // Start an intent to select an image from the device
     private void selectImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Select Image"), 1);
     }
 
-    public void startPSNRCalculationActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, CalculationActivity.class);
-        startActivity(intent);
-    }
-
+    // Handling the result from the image selection intent
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Load and display the selected image in the ImageView
     private void loadImage(Uri selectedImageUri) {
         try {
             Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Encrypt and hide a message within the selected image using LSB encoding
     private void hideMessage() {
         String message = messageEditText.getText().toString();
         String password = passwordEditText.getText().toString();
@@ -111,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Extract and decrypt a message from the selected image
     private void extractMessage() {
         String password = passwordEditText.getText().toString();
         if (imageUri != null && !password.isEmpty()) {
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Sign out the current user and return to the Authentication Activity
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
@@ -127,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Display a popup with the extracted message
     private void showMessagePopup(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
@@ -135,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    // AsyncTask for hiding a message inside an image
     private class HideMessageTask extends AsyncTask<String, Void, Bitmap> {
         private String password;
 
@@ -167,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Save the processed image to the device storage
     private void saveEncodedImageToFile(Bitmap bitmap, String fileName) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
@@ -181,13 +190,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // AsyncTask for extracting a message from an image
     private class ExtractMessageTask extends AsyncTask<Uri, Void, String> {
         private String password;
 
+        // Constructor for the ExtractMessageTask, initializes with the encryption/decryption password
         public ExtractMessageTask(String password) {
             this.password = password;
         }
 
+        // Extract message and decrypt
         @Override
         protected String doInBackground(Uri... params) {
             Uri imageUri = params[0];
