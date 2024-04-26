@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions for external storage access -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <!-- Consider removing WRITE_EXTERNAL_STORAGE and MANAGE_EXTERNAL_STORAGE if your app can adapt to scoped storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
@@ -36,8 +34,7 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="true" />
-        <activity android:name=".ShareImageActivity" />
-        <activity android:name=".ViewSharedImagesActivity" />
+        <activity android:name=".PrivacyActivity"/>
         <!-- Meta-data for Google Play services -->
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

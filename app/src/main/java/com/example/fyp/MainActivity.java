@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         Button signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(v -> signOut());
         userEmailTextView = findViewById(R.id.user_email_text_view);
+        Button aboutPrivacyButton = findViewById(R.id.about_privacy_button);
+
+        aboutPrivacyButton.setOnClickListener(view -> openPrivacyInfo());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && currentUser.getEmail() != null) {
@@ -63,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             userEmailTextView.setText("No user logged in");
         }
+    }
+    private void openPrivacyInfo() {
+        Intent intent = new Intent(MainActivity.this, PrivacyActivity.class);
+        startActivity(intent);
     }
 
     private void selectImage() {

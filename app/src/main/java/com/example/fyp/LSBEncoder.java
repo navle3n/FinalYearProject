@@ -44,6 +44,7 @@ public class LSBEncoder {
         int messageBitLength = binaryMessage.length();
         if (messageBitLength + 32 > imageCapacity) {
             Log.e(TAG, "Message is too long for the provided image. Required: " + (messageBitLength + 32) + ", Capacity: " + imageCapacity);
+
             return null;
         }
 
