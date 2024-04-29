@@ -25,12 +25,6 @@ git clone https://github.com/navle3n/FinalYearProject.git
 3. Follow the on-screen instructions to complete the process.
 4. Enjoy secure communication with hidden messages!
 
-## Technologies Used
-
-- Android Studio
-- Java
-- XML
-
 ## Contributors
 Navleen - Lead Developer
 
