@@ -32,6 +32,5 @@ git clone https://github.com/navle3n/FinalYearProject.git
 - XML
 
 ## Contributors
-
-- Navleen - Lead Developer
+Navleen - Lead Developer
 
