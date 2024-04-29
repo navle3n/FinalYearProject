@@ -84,6 +84,12 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Image"), 1);
     }
 
+    // Start an intent to navigate to Calulation activity
+    public void startPSNRCalculationActivity(View view) {
+        Intent intent = new Intent(MainActivity.this, CalculationActivity.class);
+        startActivity(intent);
+    }
+
     // Handling the result from the image selection intent
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
